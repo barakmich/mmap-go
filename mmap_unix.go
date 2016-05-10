@@ -7,6 +7,8 @@
 package mmap
 
 import (
+	"syscall"
+
 	"golang.org/x/sys/unix"
 )
 
@@ -40,6 +42,14 @@ func (m MMap) flush() error {
 
 func (m MMap) lock() error {
 	return unix.Mlock([]byte(m))
+}
+
+func aflush(addr, len uintptr) error {
+	_, _, errno := syscall.Syscall(syscall.SYS_MSYNC, addr, len, syscall.MS_ASYNC)
+	if errno != 0 {
+		return syscall.Errno(errno)
+	}
+	return nil
 }
 
 func (m MMap) unlock() error {

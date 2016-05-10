@@ -110,6 +110,10 @@ func (m MMap) flush() error {
 	return nil
 }
 
+func aflush(addr, len uintptr) error {
+	return flush(addr, len)
+}
+
 func (m MMap) lock() error {
 	addr, len := m.addrLen()
 	errno := windows.VirtualLock(addr, len)
