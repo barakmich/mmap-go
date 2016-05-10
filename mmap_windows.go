@@ -89,6 +89,10 @@ func flush(addr, len uintptr) error {
 	return os.NewSyscallError("FlushFileBuffers", errno)
 }
 
+func aflush(addr, len uintptr) error {
+	return flush(addr, len)
+}
+
 func lock(addr, len uintptr) error {
 	errno := syscall.VirtualLock(addr, len)
 	return os.NewSyscallError("VirtualLock", errno)

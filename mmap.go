@@ -98,6 +98,12 @@ func (m MMap) Flush() error {
 	return flush(dh.Data, uintptr(dh.Len))
 }
 
+// FlushAsync synchronizes the mapping's contents to the file's contents on disk, asynchronously.
+func (m MMap) FlushAsync() error {
+	dh := m.header()
+	return aflush(dh.Data, uintptr(dh.Len))
+}
+
 // Unmap deletes the memory mapped region, flushes any remaining changes, and sets
 // m to nil.
 // Trying to read or write any remaining references to m after Unmap is called will

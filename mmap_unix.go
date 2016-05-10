@@ -42,6 +42,14 @@ func flush(addr, len uintptr) error {
 	return nil
 }
 
+func aflush(addr, len uintptr) error {
+	_, _, errno := syscall.Syscall(syscall.SYS_MSYNC, addr, len, syscall.MS_ASYNC)
+	if errno != 0 {
+		return syscall.Errno(errno)
+	}
+	return nil
+}
+
 func lock(addr, len uintptr) error {
 	_, _, errno := syscall.Syscall(syscall.SYS_MLOCK, addr, len, 0)
 	if errno != 0 {
