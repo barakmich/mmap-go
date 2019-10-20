@@ -121,3 +121,20 @@ func (m *MMap) Unmap() error {
 	*m = nil
 	return err
 }
+
+// Truncate runs f.Truncate(size) on the file backing the MMap, and then edits the slice
+// using unsafe to appropriately reflect this.
+func (m *MMap) Truncate(f *os.File, size int) error {
+	if f != nil {
+		err := f.Truncate(int64(size))
+		if err != nil {
+			return err
+		}
+	}
+	// Use unsafe to turn []byte into sl, update, and back.
+	s := (*reflect.SliceHeader)(unsafe.Pointer(m))
+	s.Len = size
+	s.Cap = size
+	*m = *(*[]byte)(unsafe.Pointer(s))
+	return nil
+}
