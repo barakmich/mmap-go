@@ -9,7 +9,7 @@ package mmap
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -59,7 +59,7 @@ func TestReadWrite(t *testing.T) {
 	mmap[9] = 'X'
 	mmap.Flush()
 
-	fileData, err := ioutil.ReadAll(f)
+	fileData, err := io.ReadAll(f)
 	if err != nil {
 		t.Errorf("error reading file: %s", err)
 	}
@@ -92,7 +92,7 @@ func TestFlags(t *testing.T) {
 	mmap[9] = 'X'
 	mmap.Flush()
 
-	fileData, err := ioutil.ReadAll(f)
+	fileData, err := io.ReadAll(f)
 	if err != nil {
 		t.Errorf("error reading file: %s", err)
 	}
@@ -149,4 +149,25 @@ func TestNonZeroOffset(t *testing.T) {
 	}
 
 	fileobj.Close()
+}
+
+func TestAnonymousMapping(t *testing.T) {
+	const size = 4 * 1024
+
+	// Make an anonymous region
+	mem, err := MapRegion(nil, size, RDWR, ANON, 0)
+	if err != nil {
+		t.Fatalf("failed to allocate memory for buffer: %v", err)
+	}
+
+	// Check memory writable
+	for i := 0; i < size; i++ {
+		mem[i] = 0x55
+	}
+
+	// And unmap it
+	err = mem.Unmap()
+	if err != nil {
+		t.Fatalf("failed to unmap memory for buffer: %v", err)
+	}
 }
